@@ -17,12 +17,12 @@ public class UserService {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public User register(User user) {
-        user.setSenha(encoder.encode(user.getSenha()));
+        user.setPassword(encoder.encode(user.getPassword()));
         return repository.save(user);
     }
 
-    public boolean login(String email, String passoword) {
+    public boolean login(String email, String password) {
         Optional<User> user = repository.findByEmail(email);
-        return user.isPresent() && encoder.matches(passoword, user.get().getSenha());
+        return user.isPresent() && encoder.matches(password, user.get().getPassword());
     }
 }
