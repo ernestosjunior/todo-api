@@ -30,9 +30,9 @@ public class TodoController {
 
     }
 
-    @GetMapping
-    public List<Todo> list() {
-        return service.list();
+    @GetMapping("/board")
+    public ResponseEntity<Map<Todo.Status, List<Todo>>> board() {
+        return ResponseEntity.ok(service.getBoard());
     }
 
     @PatchMapping("/{id}")

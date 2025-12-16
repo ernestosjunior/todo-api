@@ -51,4 +51,15 @@ public class Todo {
 
     @Column(nullable = true)
     private Long userId;
+
+    @Column(nullable = false)
+    private Integer ord;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDate createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDate.now();
+    }
 }

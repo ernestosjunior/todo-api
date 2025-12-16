@@ -1,10 +1,13 @@
 package com.uneb.todo.service;
 
 import com.uneb.todo.model.Todo;
+import com.uneb.todo.model.Todo.Status;
 import com.uneb.todo.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,9 +27,21 @@ public class TodoService {
         return todo;
     }
 
-    public List<Todo> list() {
-        List<Todo> todos = repository.findAll();
-        return todos;
+    public Map<Todo.Status, List<Todo>> getBoard() {
+
+        List<Todo> todos = repository.findAllByOrderByStatusAscOrdAsc();
+
+        Map<Todo.Status, List<Todo>> board = new LinkedHashMap<>();
+
+        for (Todo.Status status : Todo.Status.values()) {
+            board.put(status, new ArrayList<>());
+        }
+
+        for (Todo todo : todos) {
+            board.get(todo.getStatus()).add(todo);
+        }
+
+        return board;
     }
 
     public Todo update(Todo updatedTodo) {

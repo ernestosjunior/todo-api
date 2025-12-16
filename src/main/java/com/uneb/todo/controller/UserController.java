@@ -1,13 +1,16 @@
 package com.uneb.todo.controller;
 
 import com.uneb.todo.model.User;
+import com.uneb.todo.service.JwtService;
 import com.uneb.todo.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -16,6 +19,9 @@ public class UserController {
 
     @Autowired
     private UserService service;
+
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
@@ -30,12 +36,29 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        String password = body.get("password");
+        try {
+            String email = body.get("email");
+            String password = body.get("password");
 
-        boolean success = service.login(email, password);
-        if (success)
-            return ResponseEntity.ok(Map.of("message", "Login successful!"));
-        return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+            User user = service.login(email, password);
+            String token = jwtService.generateToken(user);
+
+            System.out.println(token);
+
+            return ResponseEntity.ok(
+                    Map.of(
+                            "token", token,
+                            "user", user));
+        } catch (RuntimeException e) {
+            System.out.println(e);
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid credentials"));
+        }
+    }
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return service.getAllUsers();
     }
 }

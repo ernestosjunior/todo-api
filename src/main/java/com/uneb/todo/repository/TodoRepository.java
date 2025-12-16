@@ -4,6 +4,7 @@ import com.uneb.todo.model.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,6 +14,8 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     default Todo updateTodo(Todo updatedTodo) {
         return save(updatedTodo);
     }
+
+    List<Todo> findAllByOrderByStatusAscOrdAsc();
 
     default void deleteTodoById(Long id) {
         deleteById(id);
@@ -38,6 +41,14 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
                     break;
                 case "deadline":
                     todo.setDeadline(LocalDate.parse((String) value));
+                    break;
+                case "userId":
+                    if (value instanceof Number number) {
+                        todo.setUserId(number.longValue());
+                    }
+                    break;
+                case "ord":
+                    todo.setOrd((int) value);
                     break;
                 default:
                     throw new RuntimeException("Campo inválido: " + key);

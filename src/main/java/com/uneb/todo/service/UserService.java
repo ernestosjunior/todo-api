@@ -2,11 +2,12 @@ package com.uneb.todo.service;
 
 import com.uneb.todo.model.User;
 import com.uneb.todo.repository.UserRepository;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -21,8 +22,18 @@ public class UserService {
         return repository.save(user);
     }
 
-    public boolean login(String email, String password) {
-        Optional<User> user = repository.findByEmail(email);
-        return user.isPresent() && encoder.matches(password, user.get().getPassword());
+    public User login(String email, String password) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (!encoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Credenciais inválidas");
+        }
+
+        return user;
+    }
+
+    public List<User> getAllUsers() {
+        return repository.findAll();
     }
 }
